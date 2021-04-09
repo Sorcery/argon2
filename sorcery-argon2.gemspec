@@ -28,6 +28,11 @@ Gem::Specification.new do |s|
     'source_code_uri' => "#{repo_url}/tree/v#{version}"
   }
 
+  s.cert_chain = ['certs/athix.pem']
+  if $PROGRAM_NAME =~ /gem\z/
+    s.signing_key = File.expand_path('~/.ssh/gem-private_key.pem')
+  end
+
   s.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   s.files << `find ext`.split
 

@@ -38,6 +38,10 @@ Style/Documentation:
     - 'spec/**/*'
     - 'test/**/*'
 
+Style/IfUnlessModifier:
+  Exclude:
+    - '*.gemspec'
+
 # Offense count: 16
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.

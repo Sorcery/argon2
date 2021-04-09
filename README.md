@@ -93,6 +93,25 @@ Require Sorcery-Argon2 in your project:
 require 'argon2'
 ```
 
+### Using RubyGems MediumSecurity
+
+`sorcery-argon2` is cryptographically signed. To be sure the gem you install
+hasn't been tampered with:
+
+Add my public key (if you haven't already) as a trusted certificate:
+
+```
+gem cert --add <(curl -Ls https://raw.github.com/Sorcery/argon2/master/certs/athix.pem)
+
+gem install sorcery-argon2 -P MediumSecurity
+```
+
+The MediumSecurity trust profile will verify signed gems, but allow the
+installation of unsigned dependencies.
+
+This is necessary because `ffi` is not currently signed, meaning we cannot use
+HighSecurity.
+
 ## Migrating from `argon2` to `sorcery-argon2`
 
 There are two primary changes going from `argon2` to `sorcery-argon2`:
