@@ -19,6 +19,13 @@ module Argon2
     MIN_M_COST = 3
     # Used to validate the maximum acceptable memory cost
     MAX_M_COST = 31
+    # Used as the default parallelism cost if one isn't provided when calling
+    # Argon2::Password.create
+    DEFAULT_P_COST = 1
+    # Used to validate the minimum acceptable parallelism cost
+    MIN_P_COST = 1
+    # Used to validate the maximum acceptable parallelism cost
+    MAX_P_COST = 8
     # The complete Argon2 digest string (not to be confused with the checksum).
     attr_reader :digest
     # The hash portion of the stored password hash.
@@ -55,6 +62,7 @@ module Argon2
       #
       # * :t_cost
       # * :m_cost
+      # * :p_cost
       # * :secret
       #
       def create(password, options = {})
@@ -62,18 +70,18 @@ module Argon2
 
         t_cost = options[:t_cost] || DEFAULT_T_COST
         m_cost = options[:m_cost] || DEFAULT_M_COST
+        p_cost = options[:p_cost] || DEFAULT_P_COST
 
         raise Argon2::Errors::InvalidTCost if t_cost < MIN_T_COST || t_cost > MAX_T_COST
         raise Argon2::Errors::InvalidMCost if m_cost < MIN_M_COST || m_cost > MAX_M_COST
-
-        # TODO: Add support for changing the p_cost
+        raise Argon2::Errors::InvalidPCost if p_cost < MIN_P_COST || p_cost > MAX_P_COST
 
         salt = Engine.saltgen
         secret = options[:secret]
 
         Argon2::Password.new(
           Argon2::Engine.hash_argon2id_encode(
-            password, salt, t_cost, m_cost, secret
+            password, salt, t_cost, m_cost, p_cost, secret
           )
         )
       end
