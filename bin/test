@@ -4,8 +4,7 @@ set -euo pipefail
 # Internal Field Separator
 IFS=$'\n\t'
 
-# Build the Argon2 C Library. Git submodules must be initialized first!
-bundle install
+# Run the Argon2 C Library tests
 cd ext/argon2_wrap/
-make
+make test
 cd ../..

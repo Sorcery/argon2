@@ -37,14 +37,14 @@ int argon2i_hash_raw(const uint32_t t_cost, const uint32_t m_cost,
 */
 
 unsigned int argon2_wrap(char *out, const char *pwd, size_t pwd_length,
-    uint8_t *salt, uint32_t saltlen, uint32_t t_cost, uint32_t m_cost, 
+    uint8_t *salt, uint32_t saltlen, uint32_t t_cost, uint32_t m_cost,
     uint32_t lanes, uint8_t *secret, size_t secretlen);
 
 int wrap_argon2_verify(const char *encoded, const char *pwd,
     const size_t pwdlen,
     uint8_t *secret, size_t secretlen);
 
- 
+
 int main()
 {
     unsigned char out[OUT_LEN];
@@ -87,13 +87,13 @@ int main()
     printf( "Ref test: %s: PASS\n", REF);
 
     memcpy(salt, "somesalt", 8);
-    WRAP_TEST(2, 16, "password", 
+    WRAP_TEST(2, 16, "password",
             "$argon2id$v=19$m=65536,t=2,p=1$c29tZXNhbHQ$CTFhFdXPJO1aFaMaO6Mm5c8y7cJHAph8ArZWb2GRPPc");
 
-    WRAP_TEST(2, 8, "password", 
+    WRAP_TEST(2, 8, "password",
             "$argon2id$v=19$m=256,t=2,p=1$c29tZXNhbHQ$nf65EOgLrQMR/uIPnA4rEsF5h7TKyQwu9U1bMCHGi/4");
 
-    WRAP_TEST(2, 16, "differentpassword", 
+    WRAP_TEST(2, 16, "differentpassword",
             "$argon2id$v=19$m=65536,t=2,p=1$c29tZXNhbHQ$C4TWUs9rDEvq7w3+J4umqA32aWKB1+DSiRuBfYxFj94");
 
     ret = wrap_argon2_verify("$argon2i$v=19$m=256,t=2,p=1$c29tZXNhbHQAAAAAAAAAAA$3+v51OrdaFn0zGqbsgBD/Z2n4eNr2s27BcpWn0Yyafg", "password",

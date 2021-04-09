@@ -68,7 +68,7 @@ module Argon2
 
         # TODO: Add support for changing the p_cost
 
-        salt = options[:salt_do_not_supply] || Engine.saltgen
+        salt = Engine.saltgen
         secret = options[:secret]
 
         Argon2::Password.new(

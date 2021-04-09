@@ -1,112 +1,133 @@
-# Ruby Argon2 Gem
+# Argon2 - Ruby Wrapper
 
-This Ruby Gem provides FFI bindings, and a simplified interface, to the Argon2 algorithm. [Argon2](https://github.com/P-H-C/phc-winner-argon2) is the official winner of the Password Hashing Competition, a several year project to identify a successor to bcrypt/PBKDF/scrypt methods of securely storing passwords. This is an independant project and not official from the PHC team.
+Forked from [technion/ruby-argon2](https://github.com/technion/ruby-argon2) aka
+the `argon2` gem, `v2.0.3`. See below for a migration guide if you would like to
+move an existing application from `argon2` to `sorcery-argon2`.
 
-![Build Status](https://github.com/technion/ruby-argon2/workflows/Test%20Suite/badge.svg)
-[![Code Climate](https://codeclimate.com/github/technion/ruby-argon2/badges/gpa.svg)](https://codeclimate.com/github/technion/ruby-argon2)
-[![Coverage Status](https://coveralls.io/repos/github/technion/ruby-argon2/badge.svg)](https://coveralls.io/github/technion/ruby-argon2)
+[Why was `argon2` forked?](https://github.com/technion/ruby-argon2/pull/44#issuecomment-816271661)
 
-## Design
+## Table of Contents
 
-This project has several key tenets to its design:
+1. [Useful Links](#useful-links)
+2. [API Summary](#api-summary)
+3. [Installation](#installation)
+4. [Migrating from `argon2` to `sorcery-argon2`](#migrating-from-argon2-to-sorcery-argon2)
+5. [Contributing](#contributing)
+6. [Contact](#contact)
+7. [License](#license)
 
-* The reference Argon2 implementation is to be used "unaltered". To ensure compliance with this goal, and encourage regular updates from upstream, the upstream library is implemented as a git submodule, and is intended to stay that way.
-* The FFI interface is kept as slim as possible, with wrapper classes preferred to implementing context structs in FFI
-* Security and maintainability take top priority. This can have an impact on platform support. A PR that contains platform specific code paths is unlikely to be accepted.
-* Tested platforms are MRI Ruby 2.2, 2.3 and JRuby 9000. No assertions are made on other platforms.
-* Errors from the C interface are raised as Exceptions. There are a lot of exception classes, but they tend to relate to things like very broken input, and code bugs. Calls to this library should generally not require a rescue.
-* Test suites should aim for 100% code coverage.
-* Default work values should not be considered constants. I will increase them from time to time.
-* Not exposing the threads parameter is a design choice. I believe there is significant risk, and minimal gain in using a value other than '1'. Four threads on a four core box completely ties up the entire server to process one user logon. If you want more security, increase m_cost.
-* Many Rubocop errors have been disabled, but any commit should avoid new alerts or demonstrate their necessity.
+## Useful Links
 
-## Usage
+* [Documentation](https://rubydoc.info/gems/sorcery-argon2)
 
-Require this in your Gemfile like a typical Ruby gem:
+## API Summary
+
+Below is a summary of the library methods. Most method names are self explaining
+and the rest are commented:
+
+### Argon2::Password
+
+```ruby
+# Class methods
+Argon2::Password.create(password, options = {})
+Argon2::Password.valid_hash?(digest)
+Argon2::Password.verify_password(password, digest, pepper = nil)
+
+# Instance Methods
+argon2 = Argon2::Password.new(digest)
+argon2 == other_argon2
+argon2.matches?(password, pepper = nil)
+argon2.to_s   # Returns the digest as a String
+argon2.to_str # Also returns the digest as a String
+
+# Argon2::Password Attributes (readonly)
+argon2.digest
+argon2.variant
+argon2.version
+argon2.t_cost
+argon2.m_cost
+argon2.p_cost
+argon2.salt
+argon2.checksum
+```
+
+### Errors
+
+```ruby
+Argon2::Error
+Argon2::Errors::InvalidHash
+Argon2::Errors::InvalidVersion
+Argon2::Errors::InvalidCost
+Argon2::Errors::InvalidTCost
+Argon2::Errors::InvalidMCost
+Argon2::Errors::InvalidPCost
+Argon2::Errors::InvalidPassword
+Argon2::Errors::InvalidSaltSize
+Argon2::Errors::InvalidOutputLength
+Argon2::Errors::ExtError
+```
+
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'sorcery-argon2'
+```
+
+And then execute:
+
+```
+$ bundle
+```
+
+Or install it yourself as:
+
+```
+$ gem install sorcery-argon2
+```
+
+Require Sorcery-Argon2 in your project:
 
 ```ruby
 require 'argon2'
 ```
 
-To generate a hash using specific time and memory cost:
+## Migrating from `argon2` to `sorcery-argon2`
 
-```ruby
-hasher = Argon2::Password.new(t_cost: 2, m_cost: 16)
-hasher.create("password")
-    => "$argon2i$v=19$m=65536,t=2,p=1$jL7lLEAjDN+pY2cG1N8D2g$iwj1ueduCvm6B9YVjBSnAHu+6mKzqGmDW745ALR38Uo"
-```
+There are two primary changes going from `argon2` to `sorcery-argon2`:
 
-To utilise default costs:
-
-```ruby
-hasher = Argon2::Password.new
-hasher.create("password")
-```
-
-If you follow this pattern, it is important to create a new `Argon2::Password` every time you generate a hash, in order to ensure a unique salt. See [issue 23](https://github.com/technion/ruby-argon2/issues/23) for more information.
-Alternatively, use this shortcut:
-
-```ruby
-Argon2::Password.create("password")
-    => "$argon2i$v=19$m=65536,t=2,p=1$61qkSyYNbUgf3kZH3GtHRw$4CQff9AZ0lWd7uF24RKMzqEiGpzhte1Hp8SO7X8bAew"
-```
-
-You can then use this function to verify a password against a given hash. Will return either true or false.
-
-```ruby
-Argon2::Password.verify_password("password", secure_password)
-```
-
-Version 1.2.x will now allow verifying an Argon2id password:
-
-```ruby
-Argon2::Password.verify_password("password", "$argon2id$v=19$m=262144,t=2,p=1$c29tZXNhbHQ$eP4eyR+zqlZX1y5xCFTkw9m5GYx0L5YWwvCFvtlbLow")
-  => true
-```
-
-Argon2 supports an optional key value. This should be stored securely on your server, such as alongside your database credentials. Hashes generated with a key will only validate when presented that key.
-
-```ruby
-KEY = "A key"
-argon = Argon2::Password.new(t_cost: 2, m_cost: 16, secret: KEY)
-myhash = argon.create("A password")
-Argon2::Password.verify_password("A password", myhash, KEY)
-```
-
-## Ruby 3 Types
-
-I am now shipping signatures in sig/. The following command sets up a testing interface.
-```sh
-RBS_TEST_TARGET="Argon2::*" bundle exec ruby -r rbs/test/setup bin/console
-```
-You should also be able to pass Steep checks:
-```sh
-steep check
-```
-These tools will need to be installed manually at this time and will be added to Gemfiles after much further testing.
-
-## Version 3.0 - Breaking API changes, addition of new helper functions
-
-### Argon2::Password API refactored
+### The Argon2::Password API has been refactored
 
 **Argon2::Password.new and Argon2::Password.create are now different.**
 
 Argon2::Passwords can now be created without initializing an instance first.
 
+To upgrade:
+
 ```ruby
-# Take instances where we abstract creating the password by first exposing an Object instance
+# Take instances where you abstract creating the password by first exposing an
+# Object instance:
 instance = Argon2::Password.new(m_cost: some_m_cost)
 instance.create(input_password)
 
-# And remove the abstraction step
+# And remove the abstraction step:
 Argon2::Password.create(input_password, m_cost: some_m_cost)
 ```
 
-### Errors restructured
+**Argon2::Password.create no longer accept custom salts.**
 
-**The root level error for Argon2 has been renamed.**
+You should not be providing your own salt to the Argon2 algorithm (it does it
+for you). Previously you could pass an option of `salt_do_not_supply`, which has
+been removed in `sorcery-argon2 - v1.0.0`.
+
+### The errors have been restructured
+
+**The root level error has been renamed.**
 
 Argon2::ArgonHashFail has been renamed to Argon2::Error
+
+To upgrade:
 
 ```ruby
 # Find any instances of Argon2::ArgonHashFail, for example...
@@ -124,74 +145,20 @@ rescue Argon2::Error
 end
 ```
 
-## Version 2.0 - Argon 2id
-Version 2.x upwards will now default to the Argon2id hash format. This is consistent with current recommendations regarding Argon2 usage. It remains capable of verifying existing hashes.
-
-## Important notes regarding version 1.0 upgrade
-Version 1.0.0 included a major version bump over 0.1.4 due to several breaking changes. The first of these was an API change, which you can read the background on [here](https://github.com/technion/ruby-argon2/issues/9).
-
-The second of these is that the reference Argon2 implementation introduced an algorithm change, which produces a hash which is not backwards compatible. This is documented on [this PR on the C library](https://github.com/P-H-C/phc-winner-argon2/pull/115). This was a regrettable requirement to address a security concern in the algorithm itself. The two versions of the Argon2 algorithm are numbered 1.0 and 1.3 respectively.
-
-Shortly after this, version 1.0.0 of this gem was released with this breaking change, supporting only Argon2 v1.3. Further time later, the official encoding format was updated, with a spec that included the version number, and the library introduced backward compatibility. This should remove the likelihood of such breaking changes in future. 
-
-
-## Platform Issues
-
-The default installation workflow has caused issues with a number of gems under the latest OSX. There is some excellent documentation on the issue and some workarounds in the [Jekyll Documentation](http://jekyllrb.com/docs/troubleshooting/#jekyll-amp-mac-os-x-1011). With this in mind, OSX is a fully supported OS.
-
-Windows is not. Nobody anywhere has the resources to support Ruby FFI code on Windows.
-
-grsec introduces certain challenges. Please see [documentation here](https://github.com/technion/ruby-argon2/issues/15).
-
-See the .travis.yml file to see currently tested and supported Ruby versions.
-
-## RubyDocs documentation
-
-[The usual URL](http://www.rubydoc.info/gems/argon2) will provide detailed documentation.
-
-## FAQ
-### Don't roll your own crypto!
-
-This gets its own section because someone will raise it. I did not invent or alter this algorithm, or implement it directly. These bindings were written following [considerable involvement with the C reference](https://github.com/P-H-C/phc-winner-argon2/commits/master?author=technion), and a strong focus has been made on following the intent of the algorithm.
-
-It is strongly advised to avoid implementations that utilise off-spec methods of introducing salts, invent imaginary parameters, or which use the word "encryption" in describing the password hashing process
-
-### Secure wipe is useless
-
-Although the low level C contains support for "secure memory wipe", any code hitting that layer has copied your password to a dozen places in memory. It should be assumed that such functionality does not exist.
-
-### Work maximums may be tighter than reference
-
-The reference implementation is aimed to provide secure hashing for many years. This implementation doesn't want you to DoS yourself in the meantime. Accordingly, some artificial limits exist on work powers. This gem can be much more agile in raising these as technology progresses.
-
-### Salts in general
-
-If you are providing your own salt, you are probably using it wrong. The design of any secure hashing system should take care of it for you.
-
 ## Contributing
 
-Any form of contribution is appreciated, however, please review [CONTRIBUTING.md](CONTRIBUTING.md).
+Bug reports and pull requests are welcome on GitHub at
+[Sorcery/argon2](https://github.com/Sorcery/argon2).
 
+## Contact
 
-## Building locally/Tests
+Feel free to ask questions using these contact details:
 
-To build the gem locally, you will need to checkout the submodule and build it manually:
+**Current Maintainers:**
 
-```shell
-git submodule update --init --recursive
-bundle install
-cd ext/argon2_wrap/
-make
-cd ../..
-```
-
-The test harness includes a property based test. To more strenuously perform this test, you can tune the iterations parameter:
-
-```shell
-TEST_CHECKS=10000 bundle exec rake test
-```
+* Josh Buker ([@athix](https://github.com/athix)) | [Email](mailto:crypto+sorcery@joshbuker.com?subject=Sorcery)
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
+This gem is available as open source under the terms of the
+[MIT License](https://opensource.org/licenses/MIT).

@@ -34,7 +34,7 @@ static int wrap_compare(const uint8_t *b1, const uint8_t *b2, size_t len) {
 }
 
 int argon2_wrap_version(char *out, const char *pwd, size_t pwd_length,
-        uint8_t *salt,  uint32_t saltlen, uint32_t t_cost, uint32_t m_cost, 
+        uint8_t *salt,  uint32_t saltlen, uint32_t t_cost, uint32_t m_cost,
         uint32_t lanes, uint8_t *secret, size_t secretlen, uint32_t version,
         argon2_type type)
 {
@@ -86,12 +86,12 @@ int argon2_wrap_version(char *out, const char *pwd, size_t pwd_length,
     encode_string(out, ENCODE_LEN + saltlen, &context, type);
     return ARGON2_OK;
 }
- 
-/* Since all new hashes will use latest version, this wraps the 
+
+/* Since all new hashes will use latest version, this wraps the
    * function including the version
    */
 int argon2_wrap(char *out, const char *pwd, size_t pwd_length,
-        uint8_t *salt,  uint32_t saltlen, uint32_t t_cost, uint32_t m_cost, 
+        uint8_t *salt,  uint32_t saltlen, uint32_t t_cost, uint32_t m_cost,
         uint32_t lanes, uint8_t *secret, size_t secretlen)
 {
     return argon2_wrap_version(out, pwd, pwd_length, salt, saltlen,
@@ -108,7 +108,7 @@ int wrap_argon2_verify(const char *encoded, const char *pwd,
     memset(&ctx, 0, sizeof(argon2_context));
     size_t encoded_len;
     argon2_type type;
-    
+
     encoded_len = strlen(encoded);
     /* larger than max possible values */
     ctx.saltlen = encoded_len;
@@ -139,7 +139,7 @@ int wrap_argon2_verify(const char *encoded, const char *pwd,
         free(ctx.salt);
         free(ctx.out);
         return ARGON2_DECODING_FAIL;
-    } 
+    }
 
     out = malloc(ENCODE_LEN + ctx.saltlen);
     if(!out) {
@@ -154,7 +154,7 @@ int wrap_argon2_verify(const char *encoded, const char *pwd,
 
     free(ctx.salt);
 
-    if (ret != ARGON2_OK || wrap_compare((uint8_t*)out, (uint8_t*)encoded, 
+    if (ret != ARGON2_OK || wrap_compare((uint8_t*)out, (uint8_t*)encoded,
                 strlen(encoded))) {
         free(ctx.out);
         free(out);
@@ -165,4 +165,3 @@ int wrap_argon2_verify(const char *encoded, const char *pwd,
 
     return ARGON2_OK;
 }
-

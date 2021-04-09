@@ -1,15 +1,17 @@
 name: Test Suite
 
 # Run against all commits and pull requests.
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
   test_matrix:
 
     runs-on: ubuntu-latest
+
     strategy:
+      fail-fast: false
       matrix:
-        ruby-version:
+        ruby:
           - 2.5
           - 2.6
           - 2.7
@@ -19,27 +21,20 @@ jobs:
       TEST_CHECKS: 100
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Ruby ${{ matrix.ruby-version }}
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby-version }}
-    - name: Install dependencies
-      run: bundle install
-    - name: Init submodules
-      run: git submodule update --init --recursive
-    - name: Build C library
-      run: bin/setup
-    - name: Test C library
-      run: cd ext/argon2_wrap/ && make test && cd ../..
-    - name: Run tests
-      run: bundle exec rake test
-    - name: Coveralls Parallel
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        flag-name: run-${{ matrix.ruby-version }}
-        parallel: true
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Initialize Git Submodules
+        run: git submodule update --init --recursive
+      - name: Build Argon2 C library
+        run: bin/setup
+      - name: Test Argon2 C library
+        run: bin/test
+      - name: Run tests
+        run: bundle exec rake test
 
   rubocop:
 
@@ -51,19 +46,17 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 3.0
-    - name: Install dependencies
-      run: bundle install
+        bundler-cache: true
     - name: Run rubocop
       run: bundle exec rake rubocop
 
+# TODO: Add code coverage testing (coveralls)
+# TODO: Add documentation/maintainability testing?
+# TODO: Add dependency testing? (bundle audit)
+
   finish:
     runs-on: ubuntu-latest
-    needs: [test_matrix, rubocop]
+    needs: [ test_matrix, rubocop ]
     steps:
-      - name: Coveralls Finished
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          parallel-finished: true
       - name: Wait for status checks
         run: echo "All Green!"

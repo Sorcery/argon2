@@ -1,6 +1,8 @@
-The MIT License (MIT)
+MIT License
 
-Copyright (c) 2015 Technion
+Copyright (c) 2021 [Josh Buker](mailto:crypto@joshbuker.com)
+
+Copyright (c) 2015-2021 Technion
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
