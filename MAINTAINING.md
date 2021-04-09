@@ -54,12 +54,14 @@ NOTE: `X.Y.Z` and `vX.Y.Z` are given as examples, and should be replaced with
       above the latest version.
 1. Update Gem Version
    1. Update `./lib/argon2/version.rb` Argon2::VERSION to `'X.Y.Z'`
+1. Gem Release
+   1. `gem build`
+   1. Test installation under MediumSecurity
+   1. Create gem checksum `checksum/sorcery-argon2-X.Y.Z.gem.sha512`
+   1. `gem push sorcery-argon2-X.Y.Z.gem`
 1. Stage your changes and create a commit
    1. `git add -A`
    1. `git commit -m "Release vX.Y.Z"`
    1. `git push`
-1. Gem Release
-   1. `gem build`
-   1. `gem push <filename>`
 1. TODO: Version tagging
    1. Release new version via github interface
