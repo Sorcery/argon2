@@ -4,6 +4,10 @@ Historical changelog for all versions.
 
 ## HEAD
 
+## v1.2.0
+
+* Synced with latest upstream changes (technion/ruby-argon2 `v2.2.0`)
+
 ## v1.1.0
 
 * Added support for passing parallelism cost to `Argon2::Password.create`
