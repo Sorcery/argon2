@@ -59,7 +59,7 @@ NOTE: `X.Y.Z` and `vX.Y.Z` are given as examples, and should be replaced with
    1. `git commit -m "Release vX.Y.Z"`
 1. Ensure all tests are passing
    1. `./bin/setup`
-   1. `./bin/test`
+   1. `./bin/test` (you may need to install clang, e.g. `sudo apt install clang`)
    1. `rake default`
 1. Build the Gem
    1. `gem build`
