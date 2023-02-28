@@ -11,7 +11,7 @@ improvements. Want to know more about why `argon2` was forked?
 Wish to upgrade an existing application to use the improved API?
 [Migration guide](#migrating-from-argon2-to-sorcery-argon2)
 
-This fork is kept up-to-date with `argon2`, latest sync: `argon2 - v2.1.0`
+This fork is kept up-to-date with `argon2`, latest sync: `argon2 - v2.2.0`
 
 ## Table of Contents
 
@@ -108,7 +108,7 @@ ruby wrapper (`argon2` - [technion/ruby-argon2](https://github.com/technion/ruby
 had some questionable design decisions, and attempted to address them through a
 pull request. The sole maintainer of the gem rejected these changes summarily,
 without pointing out any specific concerns other than not understanding why the
-changes were necessary. This lead to me ([@athix](https://github.com/athix))
+changes were necessary. This lead to me ([@joshbuker](https://github.com/joshbuker))
 being directed to create a fork instead:
 [technion/ruby-argon2#44](https://github.com/technion/ruby-argon2/pull/44#issuecomment-816271661)
 
@@ -123,7 +123,7 @@ through the sheer number of intelligent community members looking at the code.
 That being said, the original library `argon2` also falls under the same
 category. Ultimately, it was also written by a single person and is not
 thoroughly vetted by the community at the time of writing. A community member
-([@athix](https://github.com/athix), in this case) finding flaws in the
+([@joshbuker](https://github.com/joshbuker), in this case) finding flaws in the
 implementation, and the fixes being rejected from upstream, is how this fork
 came into being.
 
@@ -145,6 +145,7 @@ following:
 instance = Argon2::Password.new(t_cost: 4, m_cost: 16)
 # Use this instance to generate the hash by calling create:
 instance.create(password)
+    => "$argon2i$v=19$m=65536,t=2,p=1$jL7lLEAjDN+pY2cG1N8D2g$iwj1ueduCvm6B9YVjBSnAHu+6mKzqGmDW745ALR38Uo"
 ```
 
 Not only is this abstraction step unnecessary, it opens up a new way for
@@ -296,7 +297,7 @@ Feel free to ask questions using these contact details:
 
 **Current Maintainers:**
 
-* Josh Buker ([@athix](https://github.com/athix)) | [Email](mailto:crypto+sorcery@joshbuker.com?subject=Sorcery)
+* Josh Buker ([@joshbuker](https://github.com/joshbuker)) | [Email](mailto:crypto+sorcery@joshbuker.com?subject=Sorcery)
 
 ## License
 

@@ -17,6 +17,8 @@ jobs:
           - 2.6
           - 2.7
           - 3.0
+          - 3.1
+          - 3.2
           - head
 
     runs-on: ${{ matrix.os }}-latest
@@ -37,6 +39,12 @@ jobs:
         run: bin/test
       - name: Run tests
         run: bundle exec rake test
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: run-${{ matrix.ruby-version }}
+          parallel: true
 
   rubocop:
 
@@ -52,7 +60,6 @@ jobs:
     - name: Run rubocop
       run: bundle exec rake rubocop
 
-# TODO: Add code coverage testing (coveralls)
 # TODO: Add documentation/maintainability testing?
 # TODO: Add dependency testing? (bundle audit)
 
@@ -60,5 +67,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ test_matrix, rubocop ]
     steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
       - name: Wait for status checks
         run: echo "All Green!"

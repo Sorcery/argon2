@@ -25,7 +25,8 @@ Gem::Specification.new do |s|
     'bug_tracker_uri' => "#{repo_url}/issues",
     'changelog_uri' => "#{repo_url}/releases/tag/v#{version}",
     'documentation_uri' => 'https://rubydoc.info/gems/sorcery-argon2',
-    'source_code_uri' => "#{repo_url}/tree/v#{version}"
+    'source_code_uri' => "#{repo_url}/tree/v#{version}",
+    'rubygems_mfa_required' => 'true'
   }
 
   s.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
@@ -35,7 +36,7 @@ Gem::Specification.new do |s|
   s.executables   = s.files.grep(%r{^exe/}) { |f| File.basename(f) }
   s.require_paths = ['lib']
 
-  s.add_dependency 'ffi',          '~> 1.14'
+  s.add_dependency 'ffi',          '~> 1.15'
   s.add_dependency 'ffi-compiler', '~> 1.0'
 
   # Gems required for testing the wrapper locally.
